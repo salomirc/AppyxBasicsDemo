@@ -7,12 +7,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.bumble.appyx.core.modality.BuildContext
 import com.example.appyxbasicsdemo.appyx_extensions.DefaultBuildContext
 
-class SomeChildNode(buildContext: BuildContext): BaseNode(buildContext) {
+class NavigationDestinationChildNode(
+    buildContext: BuildContext,
+    private val onBack: () -> Unit
+): BaseNode(buildContext) {
 
     @Composable
     override fun View(modifier: Modifier) {
-        MessageCard(message = "SomeChildNode")
+        ButtonMessageCard(
+            title = "NavigationDestinationChildNode",
+            buttonText = "Navigate Back",
+            action = { onBack() }
+        )
     }
+
 }
 
 @Preview(name = "Light Mode")
@@ -21,8 +29,11 @@ class SomeChildNode(buildContext: BuildContext): BaseNode(buildContext) {
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
-fun SomeChildNodePreview() {
+fun NavigationDestinationChildNodePreview() {
     DefaultBuildContext {
-        SomeChildNode(this).View(modifier = Modifier)
+        NavigationDestinationChildNode(
+            this,
+            onBack = { }
+        ).View(modifier = Modifier)
     }
 }

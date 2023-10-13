@@ -1,6 +1,5 @@
 package com.example.appyxbasicsdemo.nodes
 
-import android.content.res.Configuration
 import android.os.Parcelable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -8,16 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumble.appyx.core.composable.Children
 import com.bumble.appyx.core.modality.BuildContext
@@ -27,7 +23,7 @@ import com.bumble.appyx.navmodel.backstack.BackStack
 import com.bumble.appyx.navmodel.backstack.operation.pop
 import com.bumble.appyx.navmodel.backstack.operation.push
 import com.bumble.appyx.navmodel.backstack.transitionhandler.rememberBackstackFader
-import com.example.appyxbasicsdemo.ui.theme.AppyxBasicsDemoTheme
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget
 import kotlinx.parcelize.Parcelize
 
 class RootNode(
@@ -36,7 +32,7 @@ class RootNode(
         initialElement = NavTarget.Child1,
         savedStateMap = buildContext.savedStateMap,
     )
-) : BaseParentNode<RootNode.NavTarget>(
+) : BaseParentNode<NavTarget>(
     navModel = backStack,
     buildContext = buildContext
 ) {
@@ -49,8 +45,34 @@ class RootNode(
         object Child2 : NavTarget()
 
         @Parcelize
-        object Child3 : NavTarget()
+        object SomeChildNode : NavTarget()
+
+        @Parcelize
+        object NavigationStartChildNode : NavTarget()
+
+        @Parcelize
+        object NavigationDestinationChildNode : NavTarget()
     }
+
+    override fun resolve(navTarget: NavTarget, buildContext: BuildContext): Node =
+        when (navTarget) {
+
+            NavTarget.Child1 -> node(buildContext) { MessageCard(message = "Placeholder for child 1") }
+
+            NavTarget.Child2 -> node(buildContext) { MessageCard(message = "Placeholder for child 2") }
+
+            NavTarget.SomeChildNode -> SomeChildNode(buildContext)
+
+            NavTarget.NavigationStartChildNode -> NavigationStartChildNode(
+                buildContext,
+                onNext = { backStack.push(NavTarget.NavigationDestinationChildNode) }
+            )
+
+            NavTarget.NavigationDestinationChildNode -> NavigationDestinationChildNode(
+                buildContext,
+                onBack = { backStack.pop()}
+            )
+        }
 
     @Composable
     override fun View(modifier: Modifier) {
@@ -79,8 +101,11 @@ class RootNode(
                     OutlinedButton(onClick = { backStack.push(NavTarget.Child2) }) {
                         Text(text = "Push child 2")
                     }
-                    OutlinedButton(onClick = { backStack.push(NavTarget.Child3) }) {
-                        Text(text = "Push child 3")
+                    OutlinedButton(onClick = { backStack.push(NavTarget.SomeChildNode) }) {
+                        Text(text = "Push SomeChildNode")
+                    }
+                    OutlinedButton(onClick = { backStack.push(NavTarget.NavigationStartChildNode) }) {
+                        Text(text = "Push NavigationStartChildNode")
                     }
                     OutlinedButton(onClick = { backStack.pop() }) {
                         Text(text = "Pop")
@@ -89,45 +114,5 @@ class RootNode(
             }
         }
 
-    }
-
-    override fun resolve(navTarget: NavTarget, buildContext: BuildContext): Node =
-        when (navTarget) {
-            NavTarget.Child1 -> node(buildContext) { MessageCard(message = "1") }
-            NavTarget.Child2 -> node(buildContext) { MessageCard(message = "2") }
-            NavTarget.Child3 -> SomeChildNode(buildContext)
-        }
-}
-
-@Composable
-fun MessageCard(message: String) {
-    Surface(
-        Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .height(200.dp),
-        color = MaterialTheme.colorScheme.tertiary
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Placeholder for child $message"
-            )
-        }
-    }
-}
-
-
-@Preview(name = "Light Mode")
-@Preview(
-    name = "Dark Mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun PreviewMessageCard() {
-    AppyxBasicsDemoTheme {
-        MessageCard(message = "1")
     }
 }
