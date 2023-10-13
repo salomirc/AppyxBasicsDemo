@@ -24,12 +24,17 @@ import com.bumble.appyx.navmodel.backstack.operation.pop
 import com.bumble.appyx.navmodel.backstack.operation.push
 import com.bumble.appyx.navmodel.backstack.transitionhandler.rememberBackstackFader
 import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.Child1
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.Child2
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.NavigationDestinationChildNode
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.NavigationStartChildNode
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.SomeChildNode
 import kotlinx.parcelize.Parcelize
 
 class RootNode(
     buildContext: BuildContext,
     private val backStack: BackStack<NavTarget> = BackStack(
-        initialElement = NavTarget.Child1,
+        initialElement = Child1,
         savedStateMap = buildContext.savedStateMap,
     )
 ) : BaseParentNode<NavTarget>(
@@ -57,18 +62,18 @@ class RootNode(
     override fun resolve(navTarget: NavTarget, buildContext: BuildContext): Node =
         when (navTarget) {
 
-            NavTarget.Child1 -> node(buildContext) { MessageCard(message = "Placeholder for child 1") }
+            Child1 -> node(buildContext) { MessageCard(message = "Placeholder for child 1") }
 
-            NavTarget.Child2 -> node(buildContext) { MessageCard(message = "Placeholder for child 2") }
+            Child2 -> node(buildContext) { MessageCard(message = "Placeholder for child 2") }
 
-            NavTarget.SomeChildNode -> SomeChildNode(buildContext)
+            SomeChildNode -> SomeChildNode(buildContext)
 
-            NavTarget.NavigationStartChildNode -> NavigationStartChildNode(
+            NavigationStartChildNode -> NavigationStartChildNode(
                 buildContext,
-                onNext = { backStack.push(NavTarget.NavigationDestinationChildNode) }
+                onNext = { backStack.push(NavigationDestinationChildNode) }
             )
 
-            NavTarget.NavigationDestinationChildNode -> NavigationDestinationChildNode(
+            NavigationDestinationChildNode -> NavigationDestinationChildNode(
                 buildContext,
                 onBack = { backStack.pop()}
             )
@@ -95,16 +100,16 @@ class RootNode(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    OutlinedButton(onClick = { backStack.push(NavTarget.Child1) }) {
+                    OutlinedButton(onClick = { backStack.push(Child1) }) {
                         Text(text = "Push child 1")
                     }
-                    OutlinedButton(onClick = { backStack.push(NavTarget.Child2) }) {
+                    OutlinedButton(onClick = { backStack.push(Child2) }) {
                         Text(text = "Push child 2")
                     }
-                    OutlinedButton(onClick = { backStack.push(NavTarget.SomeChildNode) }) {
+                    OutlinedButton(onClick = { backStack.push(SomeChildNode) }) {
                         Text(text = "Push SomeChildNode")
                     }
-                    OutlinedButton(onClick = { backStack.push(NavTarget.NavigationStartChildNode) }) {
+                    OutlinedButton(onClick = { backStack.push(NavigationStartChildNode) }) {
                         Text(text = "Push NavigationStartChildNode")
                     }
                     OutlinedButton(onClick = { backStack.pop() }) {
