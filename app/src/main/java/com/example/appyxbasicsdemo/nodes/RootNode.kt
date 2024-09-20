@@ -1,5 +1,6 @@
 package com.example.appyxbasicsdemo.nodes
 
+import android.content.res.Configuration
 import android.os.Parcelable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumble.appyx.core.composable.Children
 import com.bumble.appyx.core.modality.BuildContext
@@ -23,18 +25,19 @@ import com.bumble.appyx.navmodel.backstack.BackStack
 import com.bumble.appyx.navmodel.backstack.operation.pop
 import com.bumble.appyx.navmodel.backstack.operation.push
 import com.bumble.appyx.navmodel.backstack.transitionhandler.rememberBackstackFader
+import com.example.appyxbasicsdemo.appyx_extensions.DefaultBuildContext
 import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget
 import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.Child1
 import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.Child2
-import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.NavigationDestinationChildNode
-import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.NavigationStartChildNode
-import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.SomeChildNode
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.NavigationDestinationChild
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.NavigationStartChild
+import com.example.appyxbasicsdemo.nodes.RootNode.NavTarget.SomeChild
 import kotlinx.parcelize.Parcelize
 
 class RootNode(
     buildContext: BuildContext,
     private val backStack: BackStack<NavTarget> = BackStack(
-        initialElement = Child1,
+        initialElement = Child2,
         savedStateMap = buildContext.savedStateMap,
     )
 ) : BaseParentNode<NavTarget>(
@@ -50,13 +53,13 @@ class RootNode(
         object Child2 : NavTarget()
 
         @Parcelize
-        object SomeChildNode : NavTarget()
+        data class SomeChild(val message: String) : NavTarget()
 
         @Parcelize
-        object NavigationStartChildNode : NavTarget()
+        object NavigationStartChild : NavTarget()
 
         @Parcelize
-        object NavigationDestinationChildNode : NavTarget()
+        object NavigationDestinationChild : NavTarget()
     }
 
     override fun resolve(navTarget: NavTarget, buildContext: BuildContext): Node =
@@ -66,14 +69,14 @@ class RootNode(
 
             Child2 -> node(buildContext) { MessageCard(message = "Placeholder for child 2") }
 
-            SomeChildNode -> SomeChildNode(buildContext)
+            is SomeChild -> SomeChildNode(buildContext, message = navTarget.message)
 
-            NavigationStartChildNode -> NavigationStartChildNode(
+            NavigationStartChild -> NavigationStartChildNode(
                 buildContext,
-                onNext = { backStack.push(NavigationDestinationChildNode) }
+                onNext = { backStack.push(NavigationDestinationChild) }
             )
 
-            NavigationDestinationChildNode -> NavigationDestinationChildNode(
+            NavigationDestinationChild -> NavigationDestinationChildNode(
                 buildContext,
                 onBack = { backStack.pop()}
             )
@@ -106,10 +109,10 @@ class RootNode(
                     OutlinedButton(onClick = { backStack.push(Child2) }) {
                         Text(text = "Push child 2")
                     }
-                    OutlinedButton(onClick = { backStack.push(SomeChildNode) }) {
+                    OutlinedButton(onClick = { backStack.push(SomeChild(message = "Hello World!")) }) {
                         Text(text = "Push SomeChildNode")
                     }
-                    OutlinedButton(onClick = { backStack.push(NavigationStartChildNode) }) {
+                    OutlinedButton(onClick = { backStack.push(NavigationStartChild) }) {
                         Text(text = "Push NavigationStartChildNode")
                     }
                     OutlinedButton(onClick = { backStack.pop() }) {
@@ -121,3 +124,18 @@ class RootNode(
 
     }
 }
+
+@Preview(name = "Light Mode")
+@Preview(
+    name = "Dark Mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun RootNodePreview() {
+    DefaultBuildContext {
+        RootNode(
+            this
+        ).View(modifier = Modifier)
+    }
+}
+

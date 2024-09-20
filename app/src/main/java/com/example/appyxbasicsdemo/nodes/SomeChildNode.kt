@@ -7,11 +7,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.bumble.appyx.core.modality.BuildContext
 import com.example.appyxbasicsdemo.appyx_extensions.DefaultBuildContext
 
-class SomeChildNode(buildContext: BuildContext): BaseNode(buildContext) {
+class SomeChildNode(buildContext: BuildContext, private val message: String): BaseNode(buildContext) {
 
     @Composable
     override fun View(modifier: Modifier) {
-        MessageCard(message = "SomeChildNode")
+        MessageCard(message = message)
     }
 }
 
@@ -23,6 +23,6 @@ class SomeChildNode(buildContext: BuildContext): BaseNode(buildContext) {
 @Composable
 fun SomeChildNodePreview() {
     DefaultBuildContext {
-        SomeChildNode(this).View(modifier = Modifier)
+        SomeChildNode(this, "Hello World!").View(modifier = Modifier)
     }
 }
